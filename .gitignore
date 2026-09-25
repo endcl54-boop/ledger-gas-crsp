@@ -1,0 +1,13 @@
+node_modules/
+.npm/
+.tools/
+.config/
+.local/
+dist/
+.clasprc.json
+.clasp.json
+.DS_Store
+.env
+.env.*
+!.env.example
+coverage/

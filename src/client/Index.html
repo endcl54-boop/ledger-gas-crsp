@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ledger</title>
+    <style>
+      :root { color-scheme: light; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      body { margin: 0; background: #f5f7fb; color: #182230; }
+      main { width: min(100% - 32px, 920px); margin: 0 auto; padding: 24px 0 48px; }
+      h1 { margin: 0 0 6px; font-size: 28px; }
+      .muted { color: #667085; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 20px 0; }
+      .card, form, .transactions { background: white; border: 1px solid #e4e7ec; border-radius: 14px; padding: 16px; box-shadow: 0 2px 8px rgba(16, 24, 40, .04); }
+      .card strong { display: block; margin-top: 8px; font-size: 22px; }
+      form { display: grid; gap: 12px; margin: 16px 0; }
+      .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+      label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; }
+      input, select, textarea, button { width: 100%; box-sizing: border-box; border: 1px solid #d0d5dd; border-radius: 8px; padding: 9px 10px; font: inherit; }
+      textarea { min-height: 64px; resize: vertical; }
+      button { cursor: pointer; border: 0; color: white; background: #175cd3; font-weight: 700; }
+      button:disabled { opacity: .55; cursor: wait; }
+      .status { min-height: 22px; color: #b42318; }
+      table { width: 100%; border-collapse: collapse; font-size: 14px; }
+      th, td { padding: 10px 6px; border-bottom: 1px solid #eaecf0; text-align: left; }
+      td.amount { text-align: right; font-variant-numeric: tabular-nums; }
+      @media (max-width: 560px) { main { width: min(100% - 20px, 920px); padding-top: 16px; } th:nth-child(3), td:nth-child(3) { display: none; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Ledger</h1>
+      <div class="muted">Google Apps Script + TypeScript + crsp</div>
+
+      <section id="summary" class="grid" aria-label="summary"></section>
+
+      <form id="transaction-form">
+        <div class="fields">
+          <label>類型
+            <select id="type" required>
+              <option value="expense">支出</option>
+              <option value="income">收入</option>
+              <option value="transfer">轉移</option>
+            </select>
+          </label>
+          <label>日期
+            <input id="occurredAt" type="date" required />
+          </label>
+          <label>金額（HKD）
+            <input id="amount" type="number" min="0.01" step="0.01" required />
+          </label>
+        </div>
+        <div class="fields">
+          <label id="from-label">付款帳戶
+            <select id="fromAccount"></select>
+          </label>
+          <label id="to-label">收款帳戶
+            <select id="toAccount"></select>
+          </label>
+          <label id="category-label">分類
+            <select id="category"></select>
+          </label>
+        </div>
+        <label>備註
+          <textarea id="note" placeholder="例如：午餐、薪金、銀行轉現金"></textarea>
+        </label>
+        <button id="submit" type="submit">新增紀錄</button>
+        <div id="status" class="status" role="status"></div>
+      </form>
+
+      <section class="transactions">
+        <h2>最近交易</h2>
+        <div id="transactions" class="muted">載入中…</div>
+      </section>
+    </main>
+    <script>
+      /* __CLIENT_BUNDLE__ */
+    </script>
+  </body>
+</html>

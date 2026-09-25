@@ -1,0 +1,79 @@
+name: Deploy Apps Script
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'tools/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/deploy.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ledger-gas-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify source
+        run: |
+          npm run check
+          npm test
+          npm run build
+
+      - name: Install pinned crsp
+        run: cargo install google-clasp-rs --version 0.1.2 --locked
+
+      - name: Restore crsp project configuration
+        env:
+          CRSP_PROJECT_JSON: ${{ secrets.CRSP_PROJECT_JSON }}
+        run: |
+          test -n "$CRSP_PROJECT_JSON"
+          printf '%s' "$CRSP_PROJECT_JSON" > .clasp.json
+
+      - name: Restore crsp OAuth credentials
+        env:
+          CRSP_AUTH_JSON: ${{ secrets.CRSP_AUTH_JSON }}
+        run: |
+          test -n "$CRSP_AUTH_JSON"
+          printf '%s' "$CRSP_AUTH_JSON" > "$HOME/.clasprc.json"
+          chmod 600 "$HOME/.clasprc.json"
+
+      - name: Check files to push
+        run: crsp show-file-status --json
+
+      - name: Push Apps Script project
+        run: crsp push --force
+
+      - name: Update stable Web App deployment
+        env:
+          GAS_DEPLOYMENT_ID: ${{ secrets.GAS_DEPLOYMENT_ID }}
+        run: |
+          test -n "$GAS_DEPLOYMENT_ID"
+          crsp update-deployment "$GAS_DEPLOYMENT_ID" \
+            --description "ci-${GITHUB_SHA::7}"
