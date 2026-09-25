@@ -3,6 +3,7 @@ node_modules/
 .tools/
 .config/
 .local/
+.gitconfig
 dist/
 .clasprc.json
 .clasp.json
