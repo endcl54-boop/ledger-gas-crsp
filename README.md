@@ -177,7 +177,13 @@ cat ~/.clasprc.json
 
 第一次 Web App deployment 的固定 deployment ID。
 
-`.github/workflows/deploy.yml` 只會在 `main` push 或手動執行時：
+`.github/workflows/deploy.yml` 在 `main` push 或手動執行時會先檢查 repository variable：
+
+```text
+ENABLE_GAS_DEPLOY=true
+```
+
+只有啟用後才會執行：
 
 ```text
 npm ci
@@ -187,6 +193,8 @@ npm run build
 crsp push --force
 crsp update-deployment <GAS_DEPLOYMENT_ID>
 ```
+
+這樣在 Google credentials 尚未設定時，main push 不會產生失敗的 production deploy。完成三個 Secrets 後，再建立 repository variable `ENABLE_GAS_DEPLOY=true`。
 
 建議在 GitHub 的 `production` Environment 加入 required reviewer，避免每次合併都直接發布財務應用程式。
 
